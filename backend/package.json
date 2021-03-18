@@ -1,5 +1,5 @@
 {
-  "name": "backend",
+  "name": "talon-tree-sitter-service",
   "version": "1.0.0",
   "description": "",
   "main": "server.js",
@@ -7,8 +7,10 @@
     "test": "test"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "test": "spago test",
+    "start": "node server.js",
+    "clean": "rm -rf .cache .spago .psci_modules node_modules output",
+    "build": "spago bundle-app --main Main --to server.js"
   },
   "keywords": [],
   "author": "",
