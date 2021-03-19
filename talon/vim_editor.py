@@ -5,6 +5,7 @@ import os
 context = Context()
 context.matches = "title: /VIM/i"
 
+vim_normal_mode = actions.user.vim_normal_mode
 # # Provide simple vim_normal_mode if the user does not already use vim
 # try:
 #     actions.user.vim_normal_mode()

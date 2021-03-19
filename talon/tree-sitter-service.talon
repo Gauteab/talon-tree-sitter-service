@@ -1,12 +1,12 @@
 
 # Insertion
 call {user.symbol_function}: user.code_insert_function(symbol_function, "")
-symbol <user.symbol_identifier>: insert(symbol_identifier)
+symbol { user.symbol_identifier }: insert(symbol_identifier)
 
 
 # Navigation
 go imports: user.symbol_navigate("", "import")
-go to <user.symbol_identifier>: user.symbol_navigate("{symbol_identifier}", "identifier")
+go to { user.symbol_identifier }: user.symbol_navigate("{symbol_identifier}", "identifier")
 go type {user.symbol_type}: user.symbol_navigate("{symbol_type}", "type")
 go fun {user.symbol_function}: user.symbol_navigate("{symbol_function}", "function")
 

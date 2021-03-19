@@ -71,6 +71,7 @@ class Actions:
         "move the cursor to a node in the file"
         file = actions.user.editor_get_file_path()
         node = document_query(file, target, type_)
+        print(node)
         navigate_to_node_start(node)
 
     def update_symbols(dictionary: Dict[str, Dict[str,str]]) -> str:
@@ -83,8 +84,8 @@ class Actions:
             context.lists[f"self.{list_name}"] = v
 
         # create capture on the fly
-        @module.capture(rule=f'({("|".join(captures))})')
-        def symbol_identifier(m) -> str: return m
+        # @module.capture(rule=f'({("|".join(captures))})')
+        # def symbol_identifier(m) -> str: return m
 
     def print_cursor():
         "print the current cursor position"
