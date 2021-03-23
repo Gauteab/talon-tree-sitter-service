@@ -14,9 +14,14 @@ and make sure you have the following programs installed:
 - node
 - vim (>= 8.0) / nvim
 
-Add the following line to your Vim configuration file:
+If you are new to Vim, create a file called `.vimrc` in your home directory and add the following line:
 ```vim
-source ~/.talon/user/talon-tree-sitter-service/vimrc
+source ~/.talon/user/talon-tree-sitter-service/simple.vimrc
+```
+
+If you already have vim set up, add the following line to your Vim configuration file:
+```vim
+source ~/.talon/user/talon-tree-sitter-service/talon.vimrc
 ```
 
 If you are already using Vim with Talon, you can remove `vim.py` and `vim.talon`,
