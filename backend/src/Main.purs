@@ -67,26 +67,23 @@ elmQuerySource =
   """
 (lower_case_identifier) @identifier 
 (upper_case_identifier) @identifier
-
 (function_declaration_left (lower_case_identifier) @function)
 (exposed_value) @function
 (lower_pattern) @function
-(union_variant (upper_case_identifier) @constructor)
-
 (exposed_type (upper_case_identifier) @type)
 (type_declaration (upper_case_identifier) @type)
 (type_alias_declaration (upper_case_identifier) @type)
+"""
 
-(record_pattern (_ (lower_case_identifier) @record-field))
-(field_access_expr (lower_case_identifier) @record-field)
-(field_type name: (lower_case_identifier) @record-field)
-(field name: (lower_case_identifier) @record-field)
-
-(import_clause (upper_case_qid (upper_case_identifier) @module))
-(import_clause (as_clause (upper_case_identifier) @module-alias))
-(import_clause (as_clause)) @import-with-alias
-  """
-
+-- (union_variant (upper_case_identifier) @constructor)
+-- (record_pattern (_ (lower_case_identifier) @record-field))
+-- (field_access_expr (lower_case_identifier) @record-field)
+-- (field_type name: (lower_case_identifier) @record-field)
+-- (field name: (lower_case_identifier) @record-field)
+-- (import_clause (upper_case_qid (upper_case_identifier) @module))
+-- (import_clause (as_clause (upper_case_identifier) @module-alias))
+-- (import_clause (as_clause)) @import-with-alias
+--   """
 -- (field_type (lower_case_identifier) @record-field)
 -- (import_clause (upper_case_qid (upper_case_identifier) @module))
 -- (import_clause (as_clause (upper_case_identifier) @module-alias))

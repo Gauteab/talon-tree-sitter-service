@@ -11,7 +11,7 @@ from an Elm program and exposes it to Talon in order to increase accuracy when d
 Start by cloning this repository into your Talon user directory (`~/.talon/user`)
 and make sure you have the following programs installed:
 - npm
-- node
+- node@12.11
 - vim (>= 8.0) / nvim
 
 If you are new to Vim, create a file called `.vimrc` in your home directory and add the following line:
