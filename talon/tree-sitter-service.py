@@ -1,4 +1,5 @@
-from talon import actions, Context, Module
+from talon import actions, Context, Module, fs, app
+import os
 import http.client
 from typing import Dict
 import json
@@ -101,6 +102,15 @@ class Actions:
         print("clearing symbols")
         context.lists = {}
 
+def ipc(path, flags):
+    print("\n", flags, "\n")
+    app.notify("!")
+    if flags.exists:
+        with open(path) as f:
+            eval(f.read())
+        
+
+fs.watch(os.path.expanduser("~/.talon-tss-ipc"), ipc)
 # Notes:
 # update context from repl
 # >>> user.thesis.context.lists["self.test"]={"test":"!"}

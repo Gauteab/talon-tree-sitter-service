@@ -24,6 +24,7 @@ import Data.Tuple (Tuple(..), uncurry)
 import Effect (Effect)
 import Effect.Console (log, logShow)
 import Node.Encoding (Encoding(..))
+import Node.FS.Sync (writeTextFile, realpath)
 import Node.Process (exit)
 import Node.Stream (onDataString)
 import Text.Parsing.Parser (ParseError, Parser, runParser)
@@ -31,6 +32,8 @@ import Text.Parsing.Parser.String (eof, satisfy)
 import Text.Parsing.Parser.Token (digit)
 import TreeSitter (Capture, Position)
 import Util (groupOn, keyValuePair, keyValuePair', surround, (~))
+
+foreign import homedir :: Effect String
 
 many1 :: forall a. Parser String a -> Parser String (Array a)
 many1 p = (:) <$> p <*> many p
@@ -67,13 +70,31 @@ instance showAction :: Show Action where
 makeActionString :: String -> Array String -> String
 makeActionString name arguments = "actions.user." <> name <> "(" <> intercalate "," arguments <> ")"
 
-talonExecuteUpdate :: CommandSet -> Effect Unit
-talonExecuteUpdate = UpdateSymbols >>> talonExecuteCommand
+data OS
+  = Windows
+  | Unix
+
+-- talonExecuteUpdate :: CommandSet -> Effect Unit
+-- talonExecuteUpdate = UpdateSymbols >>> talonExecuteCommand
+talonExecuteCommand :: OS -> Action -> Effect Unit
+talonExecuteCommand Windows = talonExecuteCommandWindows
+
+talonExecuteCommand Unix = talonExecuteCommandUnix
+
+-- | Slower solution to IPC which does not require
+-- | access to the repl, which currently does not work on WSL
+-- | Simply writes the command to a file that is watched by talon
+talonExecuteCommandWindows :: Action -> Effect Unit
+talonExecuteCommandWindows statement = do
+  home <- homedir
+  let
+    path = home <> "/.talon-tss-ipc/cmd"
+  writeTextFile UTF8 path (show statement)
 
 -- | Since a command to the talon repl
 -- | TODO: make better use of the child process API. this is hacky
-talonExecuteCommand :: Action -> Effect Unit
-talonExecuteCommand statement = do
+talonExecuteCommandUnix :: Action -> Effect Unit
+talonExecuteCommandUnix statement = do
   let
     cmd = "echo \"" <> show statement <> "\" | ~/.talon/.venv/bin/repl"
   log cmd

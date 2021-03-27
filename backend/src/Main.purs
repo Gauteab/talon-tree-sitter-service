@@ -23,7 +23,7 @@ import Node.Encoding (Encoding(..))
 import Node.FS.Sync (readTextFile)
 import Node.Path (FilePath)
 import Simple.JSON (read_, writeJSON)
-import Talon (Action(..), commandsFromCaptures, talonExecuteCommand, talonExecuteUpdate)
+import Talon (Action(..), OS(..), commandsFromCaptures, talonExecuteCommand)
 import TreeSitter (Capture, Language, Node, Tree, TreeCursor, Position, elmLanguage, json)
 import TreeSitter.Cursor (gotoFirstChild, gotoFirstChildForIndex, gotoNextSibling, gotoParent, gotoChildAtIndex)
 import TreeSitter.Cursor as Cursor
@@ -125,12 +125,11 @@ importAs n = case Node.child 1 n, Node.child 2 n >>= Node.child 1 of
   Just m, Just a -> m.text <> "-" <> a.text
   _, _ -> ""
 
-updateSymbols :: FilePath -> Effect Unit
-updateSymbols file = do
-  elmSource <- liftEffect $ readTextFile UTF8 file
-  captures <- getCaptures elmLanguage elmQuerySource elmSource
-  talonExecuteUpdate $ commandsFromCaptures captures
-
+-- updateSymbols :: FilePath -> Effect Unit
+-- updateSymbols file = do
+--   elmSource <- liftEffect $ readTextFile UTF8 file
+--   captures <- getCaptures elmLanguage elmQuerySource elmSource
+--   talonExecuteCommand os $ UpdateSymbols (commandsFromCaptures captures)
 documentQuery :: Ref.Ref ServerState -> FilePath -> String -> String -> Position -> HTTPure.ResponseM
 documentQuery ref file target type_ position = do
   elmSource <- liftEffect $ readTextFile UTF8 file
@@ -151,12 +150,13 @@ zipperToClosest position zipper = case Zipper.next zipper of
 
 documentOpen :: Ref.Ref ServerState -> FilePath -> Effect Unit
 documentOpen ref file = do
+  serverState <- Ref.read ref
   programSource <- readTextFile UTF8 file
   tree <- Parser.parse programSource =<< Parser.new elmLanguage
   Ref.modify_ _ { maybeTree = Just tree } ref
   query <- Query.new elmLanguage elmQuerySource
   captures <- Query.captures query tree.rootNode
-  talonExecuteUpdate $ commandsFromCaptures captures
+  talonExecuteCommand serverState.os $ UpdateSymbols (commandsFromCaptures captures)
 
 cycleResult :: Ref.Ref ServerState -> String -> HTTPure.ResponseM
 cycleResult ref direction = do
@@ -174,6 +174,7 @@ cycleResult ref direction = do
 type ServerState
   = { maybeTree :: Maybe Tree
     , captureZipper :: Maybe (ArrayZipper Capture)
+    , os :: OS
     }
 
 -- | A middleware that logs at the beginning of each request
@@ -185,12 +186,12 @@ loggingMiddleware router request = do
     log "---------------------"
   router request
 
-server :: HTTPure.ServerM
-server = do
+server :: OS -> HTTPure.ServerM
+server os = do
   ref <- Ref.new initialState
   HTTPure.serve 8080 (middlewares $ router ref) $ log "Server now up on port 8080"
   where
-  initialState = { maybeTree: Nothing, captureZipper: Nothing }
+  initialState = { maybeTree: Nothing, captureZipper: Nothing, os: os }
 
   middlewares = loggingMiddleware
 
@@ -223,7 +224,7 @@ server = do
       { path: [ "document-query" ], query } -> documentQuery ref (query !@ "file") (query !@ "target") (query !@ "type") (positionFromQuery query # fromMaybe { row: 0, column: 0 })
       { path: [ "document-close" ] } -> do
         liftEffect $ Ref.write initialState ref
-        liftEffect $ talonExecuteCommand ClearSymbols
+        liftEffect $ talonExecuteCommand serversState.os ClearSymbols
         HTTPure.ok ""
       { path: [ "document-open" ], query } -> do
         liftEffect $ documentOpen ref (query !@ "file")
@@ -290,4 +291,5 @@ args = Array.drop 2 argv
 main :: Effect Unit
 main = case args of
   [ "debug" ] -> debug
-  _ -> server *> pure unit
+  [ "windows" ] -> server Windows *> pure unit
+  _ -> server Unix *> pure unit
