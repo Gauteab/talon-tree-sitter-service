@@ -67,7 +67,7 @@ class Actions:
         target = target if target != "line" else verb[-1]
         cmd = f"{verb}{number if number else ''}{target}"
         print(cmd)
-        actions.user.vim_normal_mode(cmd)
+        actions.user.vim_normal_mode_np(cmd)
 
 @ctx.action_class("win")
 class win_actions:

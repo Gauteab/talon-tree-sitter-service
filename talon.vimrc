@@ -10,7 +10,7 @@ augroup END
 " Make title readable by talon
 function! TalonSetTitle()
     " let &titlestring ='VIM MODE:%{mode()} RPC:%{v:servername} | (%{getpos(".")[1]}, %{getpos(".")[2]}) | %F'
-    let &titlestring ='VIM MODE:%{mode()} | (%{getpos(".")[1]},%{getpos(".")[2]}) | %F'
+    let &titlestring ='VIM MODE:%{mode()} | (%{getpos(".")[1]},%{getpos(".")[2]}) | %t'
     " let &titlestring ='VIM MODE:%{mode()} RPC:%{v:servername} - (%f) %t'
     " let &titlestring ='VIM MODE:%{mode()} - (%f) %t'
     set title

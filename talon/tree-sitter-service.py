@@ -1,23 +1,21 @@
 from talon import actions, Context, Module, fs, app
-import os
-import http.client
 from typing import Dict
 import json
+import requests
+import os
 
 module = Module()
 context = Context()
 
 PORT = 8080
-BASE_URL = f"localhost:{PORT}"
+BASE_URL = f"http://localhost:{PORT}"
 
 def request_GET(url: str):
-    connection = http.client.HTTPConnection(BASE_URL)
-    connection.request("GET", url)
-    response = connection.getresponse()
-    print(f"Status: {response.status} ({response.reason})")
-    result = json.loads(response.read()) if response.status == 200 else None
-    connection.close()
-    return result
+    url = BASE_URL + url
+    print(url)
+    response = requests.get(url, timeout=(0.05, 3.05))
+    response.raise_for_status()
+    return json.loads(response.text)
 
 def document_query(file: str, target: str, type_: str):
     line, column = actions.user.editor_get_cursor_position()
@@ -72,7 +70,6 @@ class Actions:
         "move the cursor to a node in the file"
         file = actions.user.editor_get_file_path()
         node = document_query(file, target, type_)
-        print(node)
         navigate_to_node_start(node)
 
     def update_symbols(dictionary: Dict[str, Dict[str,str]]) -> str:

@@ -11,8 +11,10 @@ from an Elm program and exposes it to Talon in order to increase accuracy when d
 Start by cloning this repository into your Talon user directory (`~/.talon/user`)
 and make sure you have the following programs installed:
 - npm
-- node@12.11
+- node@12
 - vim (>= 8.0) / nvim
+
+It is recommended that you install node and npm via [nvm]( https://github.com/nvm-sh/nvm ).
 
 If you are new to Vim, create a file called `.vimrc` in your home directory and add the following line:
 ```vim
@@ -36,8 +38,10 @@ npm start
 
 Once you have everything set up, open `Example.elm` in Vim.
 Your window title should look something like:
-`VIM MODE:n | (1,1) | ~/.talon/user/talon-tree-sitter-service/Example.elm`
+`VIM MODE:n | (1,1) | Example.elm`
 and you should be seeing some debug output from the server.
+
+## TODO: Add Elm to known languages
 
 # Using the System
 
@@ -65,6 +69,7 @@ delete type message
 To build the code we use `Spago` (https://spacchetti.readthedocs.io/en/latest/spago.html)
 
 ```
+npm install -g purescript@0.13.8
 npm install -g purescript-spago
 spago run
 ```

@@ -11,7 +11,7 @@ visual block: user.vim_set_visual_block_mode()
 
 duplicate line: user.vim_normal_mode("yyp")
 replace <user.text>:
-    user.vim_normal_mode("ciw")
+    user.vim_normal_mode_np("ciw")
     insert(text)
 
 jump down: user.vim_normal_mode_key_np("ctrl-d")
