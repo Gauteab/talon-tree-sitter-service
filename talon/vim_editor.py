@@ -26,11 +26,6 @@ class editor_actions:
         title = actions.win.title()
         return eval(title.split(" | ")[-2])
 
-    def editor_get_file_path():
-        title = actions.win.title()
-        filename = title.split(" | ")[-1]
-        return os.path.expanduser(filename)
-
     def editor_go_to_position(row: int, column: int):
         horizontal_movement = f"{column}l" if column > 0 else ""
         vim_normal_mode(f"{row}G0{horizontal_movement}")

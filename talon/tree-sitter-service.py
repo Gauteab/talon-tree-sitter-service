@@ -17,10 +17,9 @@ def request_GET(url: str):
     response.raise_for_status()
     return json.loads(response.text)
 
-def document_query(file: str, target: str, type_: str):
+def document_query(target: str, type_: str):
     line, column = actions.user.editor_get_cursor_position()
-    file = actions.user.editor_get_file_path()
-    return request_GET(f"/document-query?file&target={target}&type={type_}&file={file}&line={line}&column={column}")
+    return request_GET(f"/document-query?target={target}&type={type_}&line={line}&column={column}")
 
 def next_result(direction):
     return request_GET(f"/cycle-result?direction={direction}")
@@ -34,9 +33,6 @@ class editor_actions:
     def editor_get_cursor_position() -> int:
         "get the position of the cursor. e.g: (12, 13)"
 
-    def editor_get_file_path() -> str:
-        "get the full file path for the file being currently edited"
-
     def editor_go_to_position(row: int, column: int):
         "navigate to the given position in the editor"
 
@@ -49,8 +45,7 @@ class Actions:
     def symbol_select_parent(target: str):
         "select the closest parent from the node under the cursor with the given type"
         line, column = actions.user.editor_get_cursor_position()
-        file = actions.user.editor_get_file_path()
-        node = request_GET(f"/select-parent?target={target}&file={file}&line={line}&column={column}")
+        node = request_GET(f"/select-parent?target={target}&line={line}&column={column}")
         navigate_to_node_start(node)
 
     def go_to_next_result(direction: str = "forward"):
@@ -60,16 +55,14 @@ class Actions:
 
     def symbol_select(target: str, type_: str):
         "select a node in the file"
-        file = actions.user.editor_get_file_path()
-        node = document_query(file, target, type_)
+        node = document_query(target, type_)
         start = node["startPosition"]
         end = node["endPosition"]
         actions.user.editor_select_range(start["row"]+1, start["column"], end["row"]+1, end["column"])
 
     def symbol_navigate(target: str, type_: str):
         "move the cursor to a node in the file"
-        file = actions.user.editor_get_file_path()
-        node = document_query(file, target, type_)
+        node = document_query(target, type_)
         navigate_to_node_start(node)
 
     def update_symbols(dictionary: Dict[str, Dict[str,str]]) -> str:

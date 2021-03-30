@@ -92,7 +92,6 @@ documentQuery ref target type_ position = do
   case state.maybeTree of
     Nothing -> HTTPure.response 400 "No document open"
     Just tree -> do
-      -- captures <- liftEffect $ captureFilterByType "t" <$> getCaptures elmLanguage (elmQuerySourceMatch type_ target) elmSource
       query <- liftEffect $ Query.new elmLanguage (elmQuerySourceMatch type_ target)
       captures <- liftEffect $ captureFilterByType "t" <$> Query.captures query tree.rootNode
       let
