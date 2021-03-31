@@ -13,7 +13,6 @@ main =
     Browser.sandbox { init = init, update = update, view = view }
 
 
-
 -- MODEL
 
 

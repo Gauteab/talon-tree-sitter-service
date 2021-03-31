@@ -41,7 +41,8 @@ Your window title should look something like:
 `VIM MODE:n | (1,1) | Example.elm`
 and you should be seeing some debug output from the server.
 
-## TODO: Add Elm to known languages
+To add elm to the list of know languages go into `knausj_talon/code/code.py`
+and add `".elm": "elm"` to the `extension_lang_map`.
 
 # Using the System
 

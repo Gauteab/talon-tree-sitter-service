@@ -74,12 +74,11 @@ class win_actions:
     def filename():
         title = actions.win.title()
         result = title.split("|")[-1]
-        # print(result)
         return result
 
     def file_ext():
-        ext = actions.win.filename().split(".")[-1]
-        # print(ext)
+        ext = "." + actions.win.filename().split(".")[-1]
+        print(ext)
         return ext
 
 
