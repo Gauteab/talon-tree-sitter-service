@@ -39,6 +39,7 @@ queryMapping =
     , "identifier" ~ "[ (lower_case_identifier) @i (upper_case_identifier) @i ] @t"
     , "function" ~ "(value_declaration (function_declaration_left (lower_case_identifier) @i)) @t"
     , "import" ~ "(import_clause) @t"
+    , "string" ~ "(string_constant_expr) @t"
     ]
 
 createMatchQuery :: String -> String -> Maybe String
@@ -207,16 +208,17 @@ debug = do
     q = "(field_type name: (lower_case_identifier) @name)"
   programSource <- readTextFile UTF8 "../Example.elm"
   parser <- Parser.new elmLanguage
-  tree <- Parser.parse programSource parser
+  tree <- Parser.parse "x = \"5\"" parser
   let
     node = tree.rootNode
-  query <- Query.new elmLanguage q
+  logShow (Node.toString node)
+  -- query <- Query.new elmLanguage q
   -- n <- Node.findByPosition { row: 46, column: 14 } node
   -- logShow $ n
   -- matches <- Query.matches query $ node
   -- for_ matches \m -> logShow (m)
   -- captures <- Query.captures query $ node
-  testCursor node
+  -- testCursor node
   -- testCaptures captures
   pure unit
 

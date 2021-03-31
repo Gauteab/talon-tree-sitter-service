@@ -5,7 +5,9 @@ symbol { user.symbol_identifier }: insert(symbol_identifier)
 
 
 # Navigation
-go imports: user.symbol_navigate("", "import")
+go import: user.symbol_navigate("", "import")
+go string: user.symbol_navigate("", "string")
+
 go to { user.symbol_identifier }: user.symbol_navigate("{symbol_identifier}", "identifier")
 go type {user.symbol_type}: user.symbol_navigate("{symbol_type}", "type")
 go fun {user.symbol_function}: user.symbol_navigate("{symbol_function}", "function")
@@ -24,7 +26,7 @@ delete type {user.symbol_type}:
     "d"
 
 # TODO: implement server-side
-select function: user.symbol_select_parent("value_declaration")
+# select function: user.symbol_select_parent("value_declaration")
 
 
 # Miscellaneous
