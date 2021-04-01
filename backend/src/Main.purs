@@ -40,6 +40,7 @@ queryMapping =
     , "function" ~ "(value_declaration (function_declaration_left (lower_case_identifier) @i)) @t"
     , "import" ~ "(import_clause) @t"
     , "string" ~ "(string_constant_expr) @t"
+    , "number" ~ "(number_constant_expr) @t"
     ]
 
 createMatchQuery :: String -> String -> Maybe String
@@ -208,7 +209,7 @@ debug = do
     q = "(field_type name: (lower_case_identifier) @name)"
   programSource <- readTextFile UTF8 "../Example.elm"
   parser <- Parser.new elmLanguage
-  tree <- Parser.parse "x = \"5\"" parser
+  tree <- Parser.parse "x = 5" parser
   let
     node = tree.rootNode
   logShow (Node.toString node)

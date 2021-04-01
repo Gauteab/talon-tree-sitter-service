@@ -14,7 +14,7 @@ and make sure you have the following programs installed:
 - node@12
 - vim (>= 8.0) / nvim
 
-It is recommended that you install node and npm via [nvm]( https://github.com/nvm-sh/nvm ).
+It is recommended that you install node and npm via [nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
 
 If you are new to Vim, create a file called `.vimrc` in your home directory and add the following line:
 ```vim
@@ -36,13 +36,17 @@ npm install
 npm start
 ```
 
+Add Elm to the list of know languages by going into `knausj_talon/code/code.py` and add `".elm": "elm"` to the `extension_lang_map`.
+
 Once you have everything set up, open `Example.elm` in Vim.
 Your window title should look something like:
 `VIM MODE:n | (1,1) | Example.elm`
 and you should be seeing some debug output from the server.
 
-To add elm to the list of know languages go into `knausj_talon/code/code.py`
-and add `".elm": "elm"` to the `extension_lang_map`.
+> Note: the server is currently not being notified immediately
+> when a change occur, so make sure to save the document after making a change
+> so the server is in sync for the next command.
+
 
 # Using the System
 
@@ -51,19 +55,34 @@ The current version supports the following use cases:
 - Navigating between function/type declarations or any identifier.
 - Selecting and deleting function/type declarations.
 
-Example commands:
+### Navigation and Editing
+Try the following commands:
 ```
-go fun view
-go type message
+go fun update
+go type update
+go to sandbox
+
 go to text
 go to next
+go to last
+
+go string
+go number
+go import
+
 select type person
+select fun view
+
 delete type message
+save it
+delete fun main
 ```
 
-> Note: the server is currently not being notified immediately
-> when a change occur, so make sure to save the document after making a change
-> so the server is in sync for the next command.
+### Dictation
+Go into insert mode and try dictating signatures using the types declared in this file.
+For example:
+- word person \<pause> of type person -> `person : Person`
+- word update \<pause> of type message to model to model -> `update : Msg -> Model -> Model`
 
 # Backend Development
 

@@ -7,6 +7,7 @@ symbol { user.symbol_identifier }: insert(symbol_identifier)
 # Navigation
 go import: user.symbol_navigate("", "import")
 go string: user.symbol_navigate("", "string")
+go number: user.symbol_navigate("", "number")
 
 go to { user.symbol_identifier }: user.symbol_navigate("{symbol_identifier}", "identifier")
 go type {user.symbol_type}: user.symbol_navigate("{symbol_type}", "type")

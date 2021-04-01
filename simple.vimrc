@@ -45,5 +45,5 @@ augroup vimrc-incsearch-highlight
 augroup END
 
 " === TALON ===
-source ~/.talon/user/talon-tree-sitter-service/vimrc
+source ~/.talon/user/talon-tree-sitter-service/talon.vimrc
 

@@ -20,23 +20,22 @@ type alias Model =
     Int
 
 
+-- assign inital model to 0
 init : Model
 init =
     0
 
 
-
 -- UPDATE
-
-
-
-type Test
-    = Test
 
 
 type Msg
     = Increment
     | Decrement
+
+type Update
+    = SoftwareUpdate
+    | FirmwareUpdate
 
 
 update : Msg -> Model -> Model
@@ -61,7 +60,7 @@ type alias Person =
 view : Model -> Html Msg
 view model =
     let
-        minus =
+        minus = -- this comment has a quotes, not is not a "string"
             "-"
     in
     div []
