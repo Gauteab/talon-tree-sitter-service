@@ -3,6 +3,7 @@ from typing import Dict
 import json
 import requests
 import os
+import sys
 
 module = Module()
 context = Context()
@@ -92,15 +93,30 @@ class Actions:
         print("clearing symbols")
         context.lists = {}
 
-def ipc(path, flags):
-    print("\n", flags, "\n")
-    app.notify("!")
+#
+# Windows workaround for IPC
+# Much slower than Unix implementation
+#
+
+WINDOWS_IPC_PATH = "C:\\talon-tss-ipc"
+
+def windows_ipc(path, flags):
+    print("IPC recieved command from: ", path)
     if flags.exists:
         with open(path) as f:
             eval(f.read())
         
+def setup_windows_ipc():
+    print("platform: ", sys.platform)
+    if sys.platform != "win32": return
+    try:
+        os.mkdir(WINDOWS_IPC_PATH)
+    except Exception as e:
+        print(e)
+    fs.watch(WINDOWS_IPC_PATH, windows_ipc)
 
-fs.watch(os.path.expanduser("~/.talon-tss-ipc"), ipc)
+setup_windows_ipc()
+
 # Notes:
 # update context from repl
 # >>> user.thesis.context.lists["self.test"]={"test":"!"}
