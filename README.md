@@ -8,13 +8,13 @@ from an Elm program and exposes it to Talon in order to increase accuracy when d
 
 # Installation
 
-Start by cloning this repository into your Talon user directory (`~/.talon/user`)
-and make sure you have the following programs installed:
-- npm
-- node@12
+Start by making sure you have the following programs installed:
+- node@12 + npm (install using [nvm](https://github.com/nvm-sh/nvm#installing-and-updating))
 - vim (>= 8.0) / nvim
 
-It is recommended that you install node and npm via [nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
+If you are on Linux/Max, clone this repository into your Talon user directory (`~/.talon/user`).
+If you are on Windows, clone the repo into you home directory (in WSL) and move the `talon` directory into your scripts folder (`/mnt/c/Users/<USERNAME>/AppData/Roaming/talon/user`).
+
 
 If you are new to Vim, create a file called `.vimrc` in your home directory and add the following line:
 ```vim
@@ -35,6 +35,7 @@ To start the server, navigate to the `backend` directory and run the following c
 npm install
 npm start
 ```
+If on windows, use `npm start -a windows` instead.
 
 Add Elm to the list of know languages by going into `knausj_talon/code/code.py` and add `".elm": "elm"` to the `extension_lang_map`.
 
