@@ -86,9 +86,9 @@ talonExecuteCommand Unix = talonExecuteCommandUnix
 -- | Simply writes the command to a file that is watched by talon
 talonExecuteCommandWindows :: Action -> Effect Unit
 talonExecuteCommandWindows statement = do
-  home <- homedir
   let
-    path = home <> "/.talon-tss-ipc/cmd"
+    path = "/mnt/c/talon-tss-ipc/cmd"
+  log $ show statement <> " -> " <> path
   writeTextFile UTF8 path (show statement)
 
 -- | Since a command to the talon repl

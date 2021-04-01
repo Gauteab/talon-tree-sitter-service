@@ -13,6 +13,7 @@ main =
     Browser.sandbox { init = init, update = update, view = view }
 
 
+
 -- MODEL
 
 
@@ -20,10 +21,14 @@ type alias Model =
     Int
 
 
+
 -- assign inital model to 0
+
+
 init : Model
 init =
     0
+
 
 
 -- UPDATE
@@ -33,6 +38,7 @@ type Msg
     = Increment
     | Decrement
 
+
 type Update
     = SoftwareUpdate
     | FirmwareUpdate
@@ -40,7 +46,10 @@ type Update
 
 update : Msg -> Model -> Model
 update msg model =
-    let minus = 5 in
+    let
+        minus =
+            5
+    in
     case msg of
         Increment ->
             model + 1
@@ -50,7 +59,7 @@ update msg model =
 
 
 type alias Person =
-    { name : String , age : Int }
+    { name : String, age : Int }
 
 
 
@@ -60,7 +69,8 @@ type alias Person =
 view : Model -> Html Msg
 view model =
     let
-        minus = -- this comment has a quotes, not is not a "string"
+        minus =
+            -- this comment has a quotes, not is not a "string"
             "-"
     in
     div []
