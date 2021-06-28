@@ -27,26 +27,27 @@ runParser langauge source = do
   _ <- Parser.parse source parser
   pure unit
 
+normalizationExamples :: Array (Tuple String String)
+normalizationExamples =
+  [ Tuple "camelCaseName" "camel case name"
+  , Tuple "peekCString" "peek C string"
+  , Tuple "snake_case_name" "snake case name"
+  , Tuple "foldl1" "foldl 1"
+  , Tuple " leading" "leading"
+  -- , Tuple "trailing_" "trailing"
+  , Tuple "AST" "A S T"
+  , Tuple "Test.Unit.Assert" "test unit assert"
+  , Tuple "TSNode" "T S node"
+  ]
+
 main :: Effect Unit
 main = do
-  let
-    examples =
-      [ Tuple "camelCaseName" "camel case name"
-      , Tuple "peekCString" "peek C string"
-      , Tuple "snake_case_name" "snake case name"
-      , Tuple "foldl1" "foldl 1"
-      , Tuple " leading" "leading"
-      -- , Tuple "trailing_" "trailing"
-      , Tuple "AST" "A S T"
-      , Tuple "Test.Unit.Assert" "test unit assert"
-      , Tuple "TSNode" "T S node"
-      ]
   runTest do
     suite "parsers do not crash" do
       testParserCanRun "python" pythonLanguage "x = 5"
       testParserCanRun "elm" elmLanguage "x = 5"
     suite "normalization" do
       test "normalization" do
-        for_ examples \(Tuple input output) -> case Talon.parseRule input of
+        for_ normalizationExamples \(Tuple input output) -> case Talon.parseRule input of
           Left e -> failure ("faled for input " <> show e)
           Right rule -> Assert.equal output (show rule)
