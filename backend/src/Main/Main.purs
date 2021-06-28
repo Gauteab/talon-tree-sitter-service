@@ -1,13 +1,13 @@
 module Main where
 
 import Prelude
+import LangaugeConfig as LangaugeConfig
 import Data.Array as Array
 import Data.Foldable (for_)
 import Data.Int as Int
-import Data.Map (Map)
 import Data.Map as Map
 import Data.Maybe (Maybe(..), fromMaybe)
-import Data.Maybe as Maybe
+import Data.String.NonEmpty as NonEmptyString
 import Data.Tuple (Tuple(..))
 import Data.Zipper.ArrayZipper (ArrayZipper, getFocus, shiftFocusFirst, shiftFocusLast, toArrayZipperFirst)
 import Data.Zipper.ArrayZipper as Zipper
@@ -21,72 +21,19 @@ import HTTPure as HTTPure
 import Node.Encoding (Encoding(..))
 import Node.FS.Sync (readTextFile)
 import Node.Path (FilePath)
+import Pathy.Name (Name(..), extension)
 import Simple.JSON (writeJSON)
-import Talon (Action(..), OS(..), commandsFromCaptures, talonExecuteCommand)
-import TreeSitter (Capture, Node, Position, Tree, elmLanguage)
+import Talon (Action(..), OS(..), commandsFromCaptures)
+import Talon as Talon
+import TreeSitter (Capture, Node, Position, Tree)
 import TreeSitter.Cursor (gotoChildAtIndex)
 import TreeSitter.Node as Node
 import TreeSitter.Parser as Parser
 import TreeSitter.Query as Query
-import Util (captureFilterByType, zipperToClosest, (~))
+import Util (captureFilterByType, zipperToClosest)
 
 foreign import argv :: Array String
 
-queryMapping :: Map String String
-queryMapping =
-  Map.fromFoldable
-    [ "type" ~ "[ (type_declaration (upper_case_identifier) @i) (type_alias_declaration (upper_case_identifier) @i) ] @t"
-    , "identifier" ~ "[ (lower_case_identifier) @i (upper_case_identifier) @i ] @t"
-    , "function" ~ "(value_declaration (function_declaration_left (lower_case_identifier) @i)) @t"
-    , "import" ~ "(import_clause) @t"
-    , "string" ~ "(string_constant_expr) @t"
-    , "number" ~ "(number_constant_expr) @t"
-    ]
-
-createMatchQuery :: String -> String -> Maybe String
-createMatchQuery name match = do
-  pattern <- Map.lookup name queryMapping
-  Just $ if match == "" then pattern else "(\n" <> pattern <> " " <> "\n(#eq? @i \"" <> match <> "\")\n)"
-
-elmQuerySourceMatch :: String -> String -> String
-elmQuerySourceMatch name match = Maybe.fromMaybe "" $ createMatchQuery name match
-
-elmQuerySource :: String
-elmQuerySource =
-  """
-(lower_case_identifier) @identifier 
-(upper_case_identifier) @identifier
-(function_declaration_left (lower_case_identifier) @function)
-(exposed_value) @function
-(lower_pattern) @function
-(exposed_type (upper_case_identifier) @type)
-(type_declaration (upper_case_identifier) @type)
-(type_alias_declaration (upper_case_identifier) @type)
-"""
-
--- (union_variant (upper_case_identifier) @constructor)
--- (record_pattern (_ (lower_case_identifier) @record-field))
--- (field_access_expr (lower_case_identifier) @record-field)
--- (field_type name: (lower_case_identifier) @record-field)
--- (field name: (lower_case_identifier) @record-field)
--- (import_clause (upper_case_qid (upper_case_identifier) @module))
--- (import_clause (as_clause (upper_case_identifier) @module-alias))
--- (import_clause (as_clause)) @import-with-alias
---   """
--- (field_type (lower_case_identifier) @record-field)
--- (import_clause (upper_case_qid (upper_case_identifier) @module))
--- (import_clause (as_clause (upper_case_identifier) @module-alias))
--- (import_clause (as_clause)) @import-with-alias
--- (module_declaration (upper_case_qid) @module) 
--- (import_clause (upper_case_qid) @import)
--- (exposed_type (upper_case_identifier) @type)
--- (type_declaration (upper_case_identifier) @type)
--- (type_alias_declaration (upper_case_identifier) @type)
--- (function_declaration_left (lower_case_identifier) @value)
--- (exposed_value) @value
--- (lower_pattern) @value
--- (union_variant (upper_case_identifier) @constroctor)
--- (union_variant) @constroctor
 -- | A request to generate commands for a given program
 documentQuery :: Ref ServerState -> String -> String -> Position -> HTTPure.ResponseM
 documentQuery ref target type_ position = do
@@ -94,7 +41,7 @@ documentQuery ref target type_ position = do
   case state.maybeTree of
     Nothing -> HTTPure.response 400 "No document open"
     Just tree -> do
-      query <- liftEffect $ Query.new elmLanguage (elmQuerySourceMatch type_ target)
+      query <- liftEffect $ Query.new LangaugeConfig.elmLanguage (LangaugeConfig.elmQuerySourceMatch type_ target)
       captures <- liftEffect $ captureFilterByType "t" <$> Query.captures query tree.rootNode
       let
         maybeZipper = zipperToClosest position <$> toArrayZipperFirst captures
@@ -107,11 +54,19 @@ documentOpen :: Ref ServerState -> FilePath -> Effect Unit
 documentOpen ref file = do
   serverState <- Ref.read ref
   programSource <- readTextFile UTF8 file
-  tree <- Parser.parse programSource =<< Parser.new elmLanguage
-  Ref.modify_ _ { maybeTree = Just tree } ref
-  query <- Query.new elmLanguage elmQuerySource
-  captures <- Query.captures query tree.rootNode
-  talonExecuteCommand serverState.os $ UpdateSymbols (commandsFromCaptures captures)
+  let
+    maybeLanguage = do
+      nes <- Name <$> NonEmptyString.fromString file
+      e <- extension nes
+      Map.lookup (NonEmptyString.toString e) LangaugeConfig.extensionMap
+  case maybeLanguage of
+    Nothing -> log "unknown extension"
+    Just { language, symbolQuery } -> do
+      tree <- Parser.parse programSource =<< Parser.new language
+      Ref.modify_ _ { maybeTree = Just tree } ref
+      query <- Query.new language symbolQuery
+      captures <- Query.captures query tree.rootNode
+      Talon.executeCommand serverState.os $ UpdateSymbols (commandsFromCaptures captures)
 
 documentCycleResult :: Ref ServerState -> String -> HTTPure.ResponseM
 documentCycleResult ref direction = do
@@ -183,7 +138,7 @@ server os = do
       { path: [ "document-query" ], query } -> documentQuery ref (query !@ "target") (query !@ "type") (positionFromQuery query # fromMaybe { row: 0, column: 0 })
       { path: [ "document-close" ] } -> do
         liftEffect $ Ref.write initialState ref
-        liftEffect $ talonExecuteCommand serversState.os ClearSymbols
+        liftEffect $ Talon.executeCommand serversState.os ClearSymbols
         HTTPure.ok ""
       { path: [ "document-open" ], query } -> do
         liftEffect $ documentOpen ref (query !@ "file")
@@ -207,8 +162,8 @@ debug = do
     --   """(value_declaration (function_declaration_left (lower_case_identifier) @name)) @declaration (#eq? @name "main")"""
     -- q = """(type_alias_declaration (upper_case_identifier) @name) @t (#eq? @name "Hello")"""
     q = "(field_type name: (lower_case_identifier) @name)"
-  programSource <- readTextFile UTF8 "../Example.elm"
-  parser <- Parser.new elmLanguage
+  -- programSource <- readTextFile UTF8 "../Example.elm"
+  parser <- Parser.new LangaugeConfig.pythonLanguage
   tree <- Parser.parse "x = 5" parser
   let
     node = tree.rootNode

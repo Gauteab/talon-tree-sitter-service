@@ -1,8 +1,8 @@
 
-augroup talon
+augroup talon_tree_sitter
     autocmd!
     autocmd BufEnter * call TalonSetTitle()
-    autocmd BufWritePost *.elm silent call TalonDocumentOpen()
+    autocmd BufWritePost *.elm,*.py silent call TalonDocumentOpen()
     autocmd BufEnter * silent call TalonDocumentOpen()
     " autocmd InsertLeave,TextChanged * call TalonDocumentChange()
 augroup END
@@ -17,7 +17,7 @@ function! TalonSetTitle()
 endfunction
 
 function TalonDocumentOpen()
-    if &ft=="elm"
+    if &ft=="elm" || &ft=="python"
         execute "!curl 'localhost:8080/document-open?file=%:p'"
     else
         execute "!curl 'localhost:8080/document-close'"

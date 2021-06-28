@@ -1,11 +1,6 @@
 module TreeSitter where
 
-import Prelude
-import Data.Ord (Ordering(..))
-
 foreign import data Language :: Type
-
-foreign import elmLanguage :: Language
 
 foreign import data Parser :: Type
 
@@ -40,17 +35,5 @@ type Match
 type Capture
   = { name :: String, node :: Node }
 
---- Data Structures
 type Position
   = { row :: Int, column :: Int }
-
--- instance prdPosition :: Ord Position where
---   compare { row: r1, column: c1 } { row: r2, column: c2 }
---     | r1 > r2 = GT
---     | c1 > c2 = GT
---     | r1 == r2 && c1 == c2 = EQ
---     | otherwise = LT
--- | used for debugging
-foreign import json :: forall a. a -> String
-
-foreign import toString :: forall a. a -> String

@@ -18,6 +18,7 @@ You can edit this file as you like.
   , "nullable"
   , "ordered-collections"
   , "parsing"
+  , "pathy"
   , "profunctor-lenses"
   , "psci-support"
   , "refs"

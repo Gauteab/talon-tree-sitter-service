@@ -1,9 +1,8 @@
 module Talon where
 
-import Control.MonadZero
-import Node.ChildProcess
-import Prelude
-import Control.Alt ((<|>))
+import Control.MonadZero ((<|>))
+import Node.ChildProcess (defaultSpawnOptions, onError, spawn, stdout)
+import Prelude (class Show, Unit, bind, discard, map, not, pure, show, when, (#), ($), (*>), (<$>), (<*), (<*>), (<<<), (<>), (==), (>>>))
 import Data.Array ((:), many)
 import Data.Array as Array
 import Data.Char.Unicode (isAlpha, isAlphaNum, isLower)
@@ -15,7 +14,6 @@ import Data.Foldable (intercalate)
 import Data.Lens (_1, _2, over, traversed)
 import Data.Map (Map)
 import Data.Map as Map
-import Data.Map as Map
 import Data.Maybe as Maybe
 import Data.Newtype (class Newtype, unwrap)
 import Data.String.CodeUnits as String
@@ -24,14 +22,14 @@ import Data.Tuple (Tuple(..), uncurry)
 import Effect (Effect)
 import Effect.Console (log, logShow)
 import Node.Encoding (Encoding(..))
-import Node.FS.Sync (writeTextFile, realpath)
+import Node.FS.Sync (writeTextFile)
 import Node.Process (exit)
 import Node.Stream (onDataString)
 import Text.Parsing.Parser (ParseError, Parser, runParser)
 import Text.Parsing.Parser.String (eof, satisfy)
 import Text.Parsing.Parser.Token (digit)
 import TreeSitter (Capture, Position)
-import Util (groupOn, keyValuePair, keyValuePair', surround, (~))
+import Util (groupOn, keyValuePair, keyValuePair', surround)
 
 foreign import homedir :: Effect String
 
@@ -74,18 +72,18 @@ data OS
   = Windows
   | Unix
 
--- talonExecuteUpdate :: CommandSet -> Effect Unit
--- talonExecuteUpdate = UpdateSymbols >>> talonExecuteCommand
-talonExecuteCommand :: OS -> Action -> Effect Unit
-talonExecuteCommand Windows = talonExecuteCommandWindows
+-- executeUpdate :: CommandSet -> Effect Unit
+-- executeUpdate = UpdateSymbols >>> executeCommand
+executeCommand :: OS -> Action -> Effect Unit
+executeCommand Windows = executeCommandWindows
 
-talonExecuteCommand Unix = talonExecuteCommandUnix
+executeCommand Unix = executeCommandUnix
 
 -- | Slower solution to IPC which does not require
 -- | access to the repl, which currently does not work on WSL
 -- | Simply writes the command to a file that is watched by talon
-talonExecuteCommandWindows :: Action -> Effect Unit
-talonExecuteCommandWindows statement = do
+executeCommandWindows :: Action -> Effect Unit
+executeCommandWindows statement = do
   let
     path = "/mnt/c/talon-tss-ipc/cmd"
   log $ show statement <> " -> " <> path
@@ -93,8 +91,8 @@ talonExecuteCommandWindows statement = do
 
 -- | Since a command to the talon repl
 -- | TODO: make better use of the child process API. this is hacky
-talonExecuteCommandUnix :: Action -> Effect Unit
-talonExecuteCommandUnix statement = do
+executeCommandUnix :: Action -> Effect Unit
+executeCommandUnix statement = do
   let
     cmd = "echo \"" <> show statement <> "\" | ~/.talon/.venv/bin/repl"
   log cmd
@@ -131,7 +129,7 @@ newtype CommandSet
   = CommandSet (Array (Tuple String (Array Command)))
 
 overrides :: Map String String
-overrides = Map.fromFoldable [ "init" ~ "in it" ]
+overrides = Map.fromFoldable [ Tuple "init" "in it" ]
 
 commandsFromCaptures :: Array Capture -> CommandSet
 commandsFromCaptures =

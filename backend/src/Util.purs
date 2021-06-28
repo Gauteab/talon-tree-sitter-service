@@ -13,8 +13,6 @@ import Data.Zipper.ArrayZipper as Zipper
 import TreeSitter (Position, Capture, Node)
 import TreeSitter.Node as Node
 
-infixr 5 Tuple as ~
-
 surround :: forall a. Semigroup a => a -> a -> a -> a
 surround before after content = before <> content <> after
 

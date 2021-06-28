@@ -17,6 +17,7 @@
   "license": "ISC",
   "dependencies": {
     "tree-sitter": "0.18.1",
-    "tree-sitter-elm": "4.5.0"
+    "tree-sitter-elm": "4.5.0",
+    "tree-sitter-python": "0.17.1"
   }
 }
