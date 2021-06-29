@@ -1,8 +1,11 @@
 {
   "name": "talon-tree-sitter-service",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Expose symbols in your program to Talon",
   "main": "server.js",
+  "engines": {
+    "node": "<=15.4.0"
+  },
   "bin": {
     "talon-tree-sitter-service": "./bin/talon-tree-sitter-service"
   },
