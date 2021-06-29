@@ -13,12 +13,12 @@ import Test.Unit.Assert as Assert
 import Test.Unit.Main (runTest)
 import TreeSitter (Language)
 import TreeSitter.Parser as Parser
-import LangaugeConfig (elmLanguage, pythonLanguage)
+import LangaugeConfig (elm, python)
 
-testParserCanRun :: forall a. String -> a -> String -> Free TestF Unit
+testParserCanRun :: String -> Language -> String -> Free TestF Unit
 testParserCanRun name language source =
   test name do
-    liftEffect $ runParser pythonLanguage source
+    liftEffect $ runParser language source
     success
 
 runParser :: Language -> String -> Effect Unit
@@ -44,8 +44,8 @@ main :: Effect Unit
 main = do
   runTest do
     suite "parsers do not crash" do
-      testParserCanRun "python" pythonLanguage "x = 5"
-      testParserCanRun "elm" elmLanguage "x = 5"
+      testParserCanRun "python" python.language "x = 5"
+      testParserCanRun "elm" elm.language "x = 5"
     suite "normalization" do
       test "normalization" do
         for_ normalizationExamples \(Tuple input output) -> case Talon.parseRule input of
